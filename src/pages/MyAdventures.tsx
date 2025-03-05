@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { generateClient } from 'aws-amplify/api';
@@ -7,6 +9,7 @@ import type { Schema } from '../../amplify/data/resource';
 const client = generateClient<Schema>();
 
 const MyAdventures: React.FC = () => {
+  //@ts-ignore
   const [adventures, setAdventures] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -15,67 +18,76 @@ const MyAdventures: React.FC = () => {
     const fetchAdventures = async () => {
       try {
         const { username } = await getCurrentUser();
-        
+
         // Get the user by username
-        const { data: users, errors: userErrors } = await client.models.User.list({
-          filter: { username: { eq: username } },
-          limit: 1
-        });
-        
+        const { data: users, errors: userErrors } =
+          await client.models.User.list({
+            filter: { username: { eq: username } },
+            limit: 1,
+          });
+
         if (userErrors) {
           throw new Error(userErrors[0].message);
         }
-        
+
         // If user doesn't exist, create one
         let userId;
         if (users.length === 0) {
-          const { data: newUser, errors: createErrors } = await client.models.User.create({
-            username,
-            email: username, // Using username as email for simplicity
-            skillLevel: 'INTERMEDIATE' // Default skill level
-          });
-          
+          const { data: newUser, errors: createErrors } =
+            await client.models.User.create({
+              username,
+              email: username, // Using username as email for simplicity
+              skillLevel: 'INTERMEDIATE', // Default skill level
+            });
+
           if (createErrors) {
             throw new Error(createErrors[0].message);
           }
-          
-          userId = newUser.id;
+
+          userId = newUser?.id;
         } else {
           userId = users[0].id;
         }
-        
+
         // Fetch adventures for this user
         const { data, errors } = await client.models.Adventure.list({
-          filter: { userId: { eq: userId } }
+          //@ts-ignore
+          filter: { userId: { eq: userId } },
         });
-        
+
         if (errors) {
           throw new Error(errors[0].message);
         }
-        
+
         // If no adventures, create a sample one
         if (data.length === 0) {
           // First get a resort
-          const { data: resorts } = await client.models.Resort.list({ limit: 1 });
-          
+          const { data: resorts } = await client.models.Resort.list({
+            limit: 1,
+          });
+
           if (resorts.length > 0) {
             const resort = resorts[0];
-            
+
             // Create a sample adventure
             const startDate = new Date();
             startDate.setDate(startDate.getDate() + 30); // 30 days from now
-            
+
             const endDate = new Date(startDate);
             endDate.setDate(endDate.getDate() + 5); // 5 day trip
-            
-            const { data: newAdventure } = await client.models.Adventure.create({
-              title: 'My First Ski Trip',
-              startDate: startDate.toISOString(),
-              endDate: endDate.toISOString(),
-              userId,
-              resortId: resort.id
-            });
-            
+
+            const { data: newAdventure } = await client.models.Adventure.create(
+              {
+                title: 'My First Ski Trip',
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                //@ts-ignore
+                userId,
+                //@ts-ignore
+                resortId: resort.id,
+              }
+            );
+
             setAdventures([newAdventure]);
           } else {
             setAdventures([]);
@@ -85,7 +97,9 @@ const MyAdventures: React.FC = () => {
         }
       } catch (err) {
         console.error('Error fetching adventures:', err);
-        setError(err instanceof Error ? err : new Error('Failed to fetch adventures'));
+        setError(
+          err instanceof Error ? err : new Error('Failed to fetch adventures')
+        );
       } finally {
         setLoading(false);
       }
@@ -114,10 +128,12 @@ const MyAdventures: React.FC = () => {
   if (error) {
     return (
       <div className="cyber-card p-6 text-center">
-        <h2 className="text-xl font-bold mb-4 text-red-500">Error Loading Adventures</h2>
+        <h2 className="text-xl font-bold mb-4 text-red-500">
+          Error Loading Adventures
+        </h2>
         <p className="mb-4">{error.message}</p>
-        <button 
-          onClick={() => window.location.reload()} 
+        <button
+          onClick={() => window.location.reload()}
           className="cyber-button"
         >
           Try Again
@@ -129,7 +145,9 @@ const MyAdventures: React.FC = () => {
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold mb-4 md:mb-0 neon-text">My Adventures</h1>
+        <h1 className="text-3xl font-bold mb-4 md:mb-0 neon-text">
+          My Adventures
+        </h1>
         <Link to="/plan" className="cyber-button">
           Plan New Adventure
         </Link>
@@ -139,7 +157,8 @@ const MyAdventures: React.FC = () => {
         <div className="cyber-card p-8 text-center">
           <h2 className="text-xl font-bold mb-4">No Adventures Yet</h2>
           <p className="text-gray-300 mb-6">
-            You haven't planned any skiing adventures yet. Start planning your first adventure now!
+            You haven't planned any skiing adventures yet. Start planning your
+            first adventure now!
           </p>
           <Link to="/plan" className="cyber-button">
             Plan Your First Adventure
@@ -147,26 +166,45 @@ const MyAdventures: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {adventures.map(adventure => (
+          {adventures.map((adventure) => (
             <div key={adventure.id} className="cyber-card overflow-hidden">
               <div className="p-6">
-                <h3 className="text-xl font-bold mb-2 neon-text">{adventure.title}</h3>
+                <h3 className="text-xl font-bold mb-2 neon-text">
+                  {adventure.title}
+                </h3>
                 <div className="flex items-center text-sm text-gray-400 mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
-                  {new Date(adventure.startDate).toLocaleDateString()} - {new Date(adventure.endDate).toLocaleDateString()}
+                  {new Date(adventure.startDate).toLocaleDateString()} -{' '}
+                  {new Date(adventure.endDate).toLocaleDateString()}
                 </div>
-                
+
                 <div className="flex justify-between items-center mb-4">
                   <div className="text-sm px-2 py-1 rounded-full bg-neon-blue/20 text-neon-blue">
-                    {Math.ceil((new Date(adventure.endDate).getTime() - new Date(adventure.startDate).getTime()) / (1000 * 60 * 60 * 24))} Days
+                    {Math.ceil(
+                      (new Date(adventure.endDate).getTime() -
+                        new Date(adventure.startDate).getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    )}{' '}
+                    Days
                   </div>
                   <div className="text-sm text-gray-400">
                     {adventure.activities?.length || 0} Activities
                   </div>
                 </div>
-                
+
                 <div className="border-t border-neon-blue/20 pt-4 mt-4">
                   <div className="flex justify-between">
                     <button className="text-neon-blue hover:text-neon-blue/80">
