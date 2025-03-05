@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+
+body {
+  background-color: #0A0A1F;
+  color: #FFFFFF;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.neon-border {
+  position: relative;
+}
+
+.neon-border::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid #00FFFF;
+  border-radius: inherit;
+  box-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF;
+  pointer-events: none;
+}
+
+.neon-text {
+  text-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF;
+}
+
+.neon-text-pink {
+  text-shadow: 0 0 5px #FF00FF, 0 0 10px #FF00FF;
+}
+
+.neon-text-green {
+  text-shadow: 0 0 5px #39FF14, 0 0 10px #39FF14;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #0A0A1F 0%, #141432 50%, #1E1E46 100%);
+}
+
+.cyber-card {
+  background: rgba(20, 20, 50, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.cyber-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00FFFF, transparent);
+  animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.cyber-button {
+  position: relative;
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid #00FFFF;
+  color: #00FFFF;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.cyber-button:hover {
+  background: rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 10px #00FFFF;
+}
+
+.cyber-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+  transform: translateX(-100%);
+}
+
+.cyber-button:hover::after {
+  transform: translateX(100%);
+  transition: transform 0.5s ease;
+}
